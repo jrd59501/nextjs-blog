@@ -1,4 +1,4 @@
-import { createClient } from '@vercel/postgres';
+import { createClient, sql } from '@vercel/postgres';
 
 // Try to connect to the database.
 // Returns the client if it works, or nothing if it fails.
@@ -10,5 +10,15 @@ export async function connectToDB() {
     return client;
   } catch (error) {
     console.error('Error connecting to database', error);
+  }
+}
+
+// Get all the posts from the database
+export async function getPosts() {
+  try {
+    const data = await sql`SELECT * FROM posts`;
+    return data.rows;
+  } catch (error) {
+    console.error('Error getting posts', error);
   }
 }
