@@ -13,7 +13,8 @@ export default async function UserButton() {
   // Someone is logged in, so show their email and Sign Out
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-sm text-gray-600">{session.user.email}</p>
+     <p className="text-sm font-medium">{session.user.name}</p>
+     <p className="text-xs text-gray-600">{session.user.email}</p>
       <SignOut />
     </div>
   );
