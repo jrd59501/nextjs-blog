@@ -9,9 +9,33 @@ export default function Page() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [error, setError] = useState('');
+  const [generating, setGenerating] = useState(false);
 
-  // Today's date, like 2026-10-05
+  // Today's date, like 2026-10-07
   const date = new Date().toISOString().slice(0, 10);
+
+  // Ask the AI to write the content based on the title
+  async function handleGenerate() {
+    setError('');
+    setGenerating(true);
+
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: title }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      setContent(data.content); // put the AI text in the Content box
+    } else if (response.status === 400) {
+      setError('Type a title first, then click Generate.');
+    } else {
+      setError('The AI could not write the post. Try again.');
+    }
+
+    setGenerating(false);
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault(); // stop the page from reloading
@@ -28,7 +52,6 @@ export default function Page() {
       router.push('/blog/posts');
       router.refresh();
     } else if (response.status === 401) {
-      // Not logged in
       setError('You need to sign in to add a post.');
     } else {
       setError('Something went wrong. Try a different title.');
@@ -54,13 +77,23 @@ export default function Page() {
         </div>
 
         <div>
-          <label htmlFor="content" className="block font-medium">Content:</label>
+          <div className="flex items-center justify-between">
+            <label htmlFor="content" className="block font-medium">Content:</label>
+            <button
+              type="button"
+              onClick={handleGenerate}
+              disabled={generating}
+              className="text-sm border border-purple-600 text-purple-700 px-3 py-1 rounded-md hover:bg-purple-100 disabled:opacity-50"
+            >
+              {generating ? 'Writing...' : '✨ Generate with AI'}
+            </button>
+          </div>
           <textarea
             id="content"
-            rows={4}
+            rows={8}
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="w-full border-2 border-purple-100 p-2 rounded-md focus:border-purple-200 focus:outline-none"
+            className="w-full mt-2 border-2 border-purple-100 p-2 rounded-md focus:border-purple-200 focus:outline-none"
           ></textarea>
         </div>
 
