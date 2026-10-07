@@ -1,5 +1,6 @@
 import { sql } from '@vercel/postgres';
 import { NextResponse } from 'next/server';
+import { auth } from '../../../../auth.config';
 
 // GET /api/posts → returns all posts as JSON
 export async function GET() {
@@ -13,6 +14,17 @@ export async function GET() {
 
 // POST /api/posts → adds a new post to the database
 export async function POST(request: Request) {
+  // Check who is logged in
+  const session = await auth();
+
+  // If nobody is logged in, stop here
+  if (!session?.user) {
+    return NextResponse.json({ error: 'You need to sign in first' }, { status: 401 });
+  }
+
+  // Use the logged-in user's name as the author
+  const author = session.user.name || session.user.email || 'Unknown';
+
   // Read the data the form sent
   const body = await request.json();
   const title = body.title;
@@ -28,7 +40,7 @@ export async function POST(request: Request) {
     // The database makes the id on its own
     await sql`
       INSERT INTO posts (author, title, content, date)
-      VALUES ('Justin D', ${title}, ${content}, ${date})
+      VALUES (${author}, ${title}, ${content}, ${date})
     `;
     return NextResponse.json({ message: 'Post added' }, { status: 200 });
   } catch (error) {
