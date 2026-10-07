@@ -1,8 +1,15 @@
 import NextAuth from 'next-auth';
 import type { NextAuthConfig } from 'next-auth';
+import Google from 'next-auth/providers/google';
 
 export const authConfig = {
-  providers: [], // empty for now, Google gets added next video
+  providers: [
+    // Let people sign in with their Google account
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
+  ],
 } satisfies NextAuthConfig;
 
 // Turn on NextAuth and get the tools we need
