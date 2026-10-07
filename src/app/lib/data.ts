@@ -20,9 +20,6 @@ export async function getPosts() {
   noStore();
 
   try {
-    // FAKE DELAY for testing the loading page
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-
     const data = await sql`SELECT * FROM posts`;
     return data.rows;
   } catch (error) {
